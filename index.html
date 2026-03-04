@@ -304,4 +304,14 @@ function saveScore(nombre, puntos){
 
 db.collection("ranking")
 .orderBy("puntos","desc")
-.limit
+.limit(10)
+.onSnapshot(snapshot=>{
+  let html = "";
+  let position = 1;
+
+  snapshot.forEach(doc=>{
+    const data = doc.data();
+    let medal = "";
+
+    if(position === 1) medal = "🥇";
+    else if(position === 2) medal = "🥈";
