@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impacto Preciso 2.1</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(135deg,#000000,#1a0000,#330000);
+  color:white;
+  text-align:center;
+  overflow-x:hidden;
+}
+
+/* Marca de agua gigante */
+body::before{
+  content:"IMPACTO PRECISO";
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:100px;
+  font-weight:bold;
+  color:rgba(255,0,0,0.05);
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:0;
+}
+
+header{
+  padding:20px;
+  position:relative;
+  z-index:1;
+}
+
+h1{
+  color:#ff1a1a;
+  text-shadow:0 0 15px red;
+}
+
+.game-container{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:40px;
+  padding:20px;
+  position:relative;
+  z-index:1;
+}
+
+#board{
+  width:320px;
+  height:320px;
+  border-radius:50%;
+  background:radial-gradient(circle, red 20%, white 20%, white 40%, red 40%, red 60%, white 60%, white 80%, red 80%);
+  position:relative;
+  cursor:pointer;
+  box-shadow:0 0 30px red;
+}
+
+#dart{
+  width:20px;
+  height:20px;
+  background:black;
+  border-radius:50%;
+  position:absolute;
+  transform:translate(-50%,-50%);
+  display:none;
+}
+
+#ranking{
+  width:260px;
+  background:rgba(255,0,0,0.1);
+  padding:15px;
+  border-radius:10px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 15px red;
+}
+
+#ranking h3{
+  color:#ff3333;
+}
+
+input,select,button{
+  padding:8px;
+  margin:5px;
+  border-radius:5px;
+  border:none;
+}
+
+button{
+  cursor:pointer;
+  background:#ff1a1a;
+  color:white;
+  font-weight:bold;
+}
+
+button:hover{
+  background:#cc0000;
+}
+
+.top1{
+  color:gold;
+  font-weight:bold;
+  font-size:18px;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Impacto Preciso 2.1 🎯</h1>
+</header>
+
+<input type="text" id="playerName" placeholder="Tu nombre">
+<select id="difficulty">
+  <option value="easy">Fácil</option>
+  <option value="medium">Medio</option>
+  <option value="hard">Difícil</option>
+</select>
+<button onclick="startGame()">Iniciar Juego</button>
+<button onclick="resetGame()">Reiniciar</button>
+
+<h2 id="timer">Tiempo: 10</h2>
+<h2 id="score">Puntos: 0</h2>
+
+<div class="game-container">
+
+<div id="board" onclick="throwDart(event)">
+<div id="dart"></div>
+</div>
+
+<div id="ranking">
+<h3>🏆 Ranking Global</h3>
+<div id="rankingList"></div>
+</div>
+
+</div>
+
+<script>
+
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "impacto-preciso.firebaseapp.com",
+  projectId: "impacto-preciso",
+  storageBucket: "impacto-preciso.firebasestorage.app",
+  messagingSenderId: "769895871874",
+  appId: "1:769895871874:web:a964369999bdd42cc04b9b"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let time = 10;
+let score = 0;
+let difficultyMultiplier = 1;
+let gameActive = false;
+let interval = null;
+
+function startGame(){
+  const name = document.getElementById("playerName").value;
+  const difficulty = document.getElementById("difficulty").value;
+
+  if(name === ""){
+    alert("Escribe tu nombre");
+    return;
+  }
+
+  if(difficulty === "easy"){
+    time = 15;
+    difficultyMultiplier = 1;
+  }
+  else if(difficulty === "medium"){
+    time = 10;
+    difficultyMultiplier = 1.5;
+  }
+  else{
+    time = 7;
+    difficultyMultiplier = 2;
+  }
+
+  score = 0;
+  gameActive = true;
+
+  document.getElementById("score").innerText = "Puntos: 0";
+  document.getElementById("timer").innerText = "Tiempo: " + time;
+
+  if(interval) clearInterval(interval);
+
+  interval = setInterval(()=>{
+    time--;
+    document.getElementById("timer").innerText = "Tiempo: " + time;
+
+    if(time <= 0){
+      clearInterval(interval);
+      gameActive = false;
+      alert("¡Juego terminado! Tu puntaje fue: " + score);
+      saveScore(name, score);
+    }
+  },1000);
+}
+
+function resetGame(){
+  clearInterval(interval);
+  gameActive = false;
+  time = 10;
+  score = 0;
+  document.getElementById("timer").innerText = "Tiempo: 10";
+  document.getElementById("score").innerText = "Puntos: 0";
+}
+
+function throwDart(event){
+  if(!gameActive) return;
+
+  const board = document.getElementById("board");
+  const rect = board.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  const centerX = rect.width/2;
+  const centerY = rect.height/2;
+
+  const distance = Math.sqrt((x-centerX)**2 + (y-centerY)**2);
+
+  let points = 0;
+
+  if(distance < 30) points = 100;
+  else if(distance < 60) points = 80;
+  else if(distance < 90) points = 60;
+  else if(distance < 120) points = 40;
+  else if(distance < 150) points = 20;
+
+  score += Math.floor(points * difficultyMultiplier);
+  document.getElementById("score").innerText = "Puntos: " + score;
+
+  const dart = document.getElementById("dart");
+  dart.style.left = x + "px";
+  dart.style.top = y + "px";
+  dart.style.display = "block";
+}
+
+function saveScore(nombre, puntos){
+  db.collection("ranking").add({
+    nombre: nombre,
+    puntos: puntos,
+    fecha: new Date()
+  });
+}
+
+db.collection("ranking")
+.orderBy("puntos","desc")
+.limit(10)
+.onSnapshot(snapshot=>{
+  let html = "";
+  let position = 1;
+
+  snapshot.forEach(doc=>{
+    const data = doc.data();
+    let medal = "";
+
+    if(position === 1) medal = "🥇";
+    else if(position === 2) medal = "🥈";
+    else if(position === 3) medal = "🥉";
+
+    if(position === 1){
+      html += `<p class="top1">${medal} ${data.nombre} - ${data.puntos} pts</p>`;
+    } else {
+      html += `<p>${medal} ${data.nombre} - ${data.puntos} pts</p>`;
+    }
+
+    position++;
+  });
+
+  document.getElementById("rankingList").innerHTML = html;
+});
+
+</script>
+
+</body>
+</html>
