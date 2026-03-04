@@ -53,7 +53,7 @@ button:hover{background:#cc0000;}
   align-items:center;
   z-index:9999;
   animation:fadeIn 1s ease-in-out;
-  transition: opacity 0.5s ease; /* transición para desvanecer */
+  transition: opacity 0.8s ease; /* transición para desvanecer */
 }
 .welcome-content{text-align:center;animation:slideUp 1s ease-out;}
 .title{font-size:50px;color:#ff1a1a;text-shadow:0 0 20px red;}
@@ -199,4 +199,6 @@ db.collection("ranking")
     else if(position === 2) medal = "🥈";
     else if(position === 3) medal = "🥉";
     if(position === 1){
-      html += `<p class="top1">${medal} ${data.nombre} - ${data.puntos} pts
+      html += `<p class="top1">${medal} ${data.nombre} - ${data.puntos} pts</p>`;
+    } else {
+      html += `<p>${medal} ${data.nombre} - ${data.puntos
