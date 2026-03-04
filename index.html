@@ -1,3 +1,8 @@
+Diego, ya lo encontré: tu pantalla de bienvenida se queda porque la función `enterGame()` no estaba incluida o no estaba bien escrita en tu `<script>`. El botón sí la llama, pero como no existe o no hace nada, nunca se oculta el `div#welcomeScreen`.
+
+Aquí te paso el **HTML completo corregido** con la función `enterGame()` al final del `<script>`. Copia y pega todo este código y ya verás que al dar clic el overlay desaparece y aparece el juego:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -201,3 +206,4 @@ db.collection("ranking")
     if(position === 1){
       html += `<p class="top1">${medal} ${data.nombre} - ${data.puntos} pts</p>`;
     } else {
+     
