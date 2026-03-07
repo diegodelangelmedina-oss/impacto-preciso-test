@@ -1,204 +1,404 @@
-<!-- ... tu <head> y <style> anterior se mantienen ... -->
-
-<!-- Agrega esto al final de tu <style> (después de lo que ya tienes) -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impacto Preciso</title>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 <style>
-  /* ... tus estilos anteriores ... */
-
-  #statsScreen, #achievements {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 100;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    text-align: center;
-  }
-
-  .stats-content, .achievements-content {
-    background: rgba(50,0,0,0.8);
-    padding: 30px;
-    border-radius: 15px;
-    max-width: 90%;
-    box-shadow: 0 0 30px red;
-  }
-
-  .badge {
-    display: inline-block;
-    background: #ff4444;
-    color: white;
-    padding: 6px 12px;
-    margin: 6px;
-    border-radius: 20px;
-    font-size: 14px;
-    box-shadow: 0 0 10px #ff0000;
-  }
-
-  .unlocked { background: #ffaa00; box-shadow: 0 0 15px gold; }
-
-  #precisionStat { font-size: 28px; font-weight: bold; color: #ffff00; }
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(135deg,#000000,#1a0000,#330000);
+  color:white;
+  text-align:center;
+  overflow-x:hidden;
+}
+body::before{
+  content:"IMPACTO PRECISO";
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:100px;
+  font-weight:bold;
+  color:rgba(255,0,0,0.05);
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:0;
+}
+header{padding:20px;position:relative;z-index:1;}
+h1{color:#ff1a1a;text-shadow:0 0 15px red;}
+.game-container{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:40px;
+  padding:20px;
+  position:relative;
+  z-index:1;
+  max-width:1200px;
+  margin:0 auto;
+}
+#board{
+  width:320px;
+  height:320px;
+  border-radius:50%;
+  background:radial-gradient(circle, red 20%, white 20%, white 40%, red 40%, red 60%, white 60%, white 80%, red 80%);
+  position:relative;
+  cursor:pointer;
+  box-shadow:0 0 30px red;
+  transition:box-shadow 0.4s;
+}
+#dart{
+  width:20px;
+  height:20px;
+  background:black;
+  border-radius:50%;
+  position:absolute;
+  transform:translate(-50%,-50%);
+  display:none;
+}
+#ranking{
+  width:300px;
+  background:rgba(255,0,0,0.1);
+  padding:15px;
+  border-radius:10px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 15px red;
+  max-height:400px;
+  overflow-y:auto;
+}
+#ranking h3{color:#ff3333;}
+#rankingExtended{
+  width:420px;
+  background:rgba(255,0,0,0.15);
+  padding:20px;
+  border-radius:15px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 0 25px #ff3333;
+  max-height:500px;
+  overflow-y:auto;
+  border:2px solid rgba(255,80,80,0.4);
+}
+#rankingExtended h3{
+  color:#ff6666;
+  font-size:24px;
+  margin-bottom:15px;
+  text-shadow:0 0 10px red;
+}
+#rankingExtendedList p{
+  font-size:18px;
+  margin:12px 0;
+  padding:8px;
+  border-bottom:1px solid rgba(255,100,100,0.3);
+  transition:all 0.2s;
+}
+#rankingExtendedList p:hover{
+  background:rgba(255,0,0,0.1);
+  transform:translateX(5px);
+}
+#rankingExtendedList .top1{
+  color:gold;
+  font-size:22px;
+  font-weight:bold;
+  text-shadow:0 0 15px gold;
+}
+input,select,button{padding:8px;margin:5px;border-radius:5px;border:none;}
+button{cursor:pointer;background:#ff1a1a;color:white;font-weight:bold;}
+button:hover{background:#cc0000;}
+.top1{color:gold;font-weight:bold;font-size:18px;}
+#welcomeScreen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#000000,#1a0000,#330000);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  animation:fadeIn 1s ease-in-out;
+  transition: opacity 0.8s ease;
+}
+.welcome-content{text-align:center;animation:slideUp 1s ease-out;}
+.title{font-size:50px;color:#ff1a1a;text-shadow:0 0 20px red;}
+.subtitle{font-size:22px;color:#ff6666;}
+.welcome-text{margin:20px 0;max-width:500px;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+header, .game-container, #timer, #score {
+  display: none;
+}
+#feedbackText {
+  position:absolute;
+  left:50%;
+  top:40%;
+  transform:translate(-50%, -50%);
+  font-size:32px;
+  font-weight:bold;
+  color:#ffff00;
+  text-shadow:0 0 12px #ff8800, 0 0 20px #ff5500;
+  pointer-events:none;
+  z-index:10;
+  opacity:0;
+  transition:opacity 0.6s, transform 0.6s;
+}
+#board.hit {
+  animation: glow 0.6s ease-out;
+}
+@keyframes glow {
+  0% { box-shadow: 0 0 30px red; }
+  50% { box-shadow: 0 0 70px #ff4444, 0 0 120px #ff0000; }
+  100% { box-shadow: 0 0 30px red; }
+}
+@keyframes floatUp {
+  0% { opacity:0; transform:translate(-50%, -50%) scale(0.6); }
+  20% { opacity:1; transform:translate(-50%, -120%) scale(1.3); }
+  80% { opacity:1; transform:translate(-50%, -140%) scale(1.1); }
+  100% { opacity:0; transform:translate(-50%, -180%) scale(1); }
+}
 </style>
-
-<!-- Nuevos elementos en el body (agrega después del #feedbackText) -->
-<div id="statsScreen">
-  <div class="stats-content">
-    <h2>¡Partida terminada, ${currentPlayerName}!</h2>
-    <p>Puntaje final: <strong id="finalScore"></strong></p>
-    <p>Lanzamientos: <strong id="throwsCount"></strong></p>
-    <p>Precisión: <span id="precisionStat">0%</span></p>
-    <div id="achievementsEarned"></div>
-    <button onclick="closeStats()" style="margin-top:20px;">Volver al juego</button>
+</head>
+<body>
+<div id="welcomeScreen">
+  <div class="welcome-content">
+    <h1 class="title">IMPACTO PRECISO 🎯</h1>
+    <p class="subtitle">Proyecto Universitario</p>
+    <p>Materia: Formación de Emprendedores</p>
+    <p class="welcome-text">
+      Hola 👋 Bienvenido a nuestro proyecto universitario.<br>
+      Pon a prueba tu precisión y compite en el ranking global.
+    </p>
+    <button onclick="enterGame()">Entrar al juego 🚀</button>
   </div>
 </div>
-
-<div id="achievements">
-  <div class="achievements-content">
-    <h2>Tus Logros 🎖️</h2>
-    <div id="achievementsList"></div>
-    <button onclick="document.getElementById('achievements').style.display='none'">Cerrar</button>
+<header>
+  <h1>Impacto Preciso RD 🎯</h1>
+</header>
+<input type="text" id="playerName" placeholder="Tu nombre">
+<select id="difficulty">
+  <option value="easy">Fácil</option>
+  <option value="medium">Medio</option>
+  <option value="hard">Difícil</option>
+</select>
+<button onclick="startGame()">Iniciar Juego</button>
+<button onclick="resetGame()">Reiniciar</button>
+<h2 id="timer">Tiempo: 10</h2>
+<h2 id="score">Puntos: 0</h2>
+<div class="game-container">
+  <div id="board" onclick="throwDart(event)">
+    <div id="dart"></div>
+  </div>
+  <div id="ranking">
+    <h3>🏆 Ranking Global (Top 25)</h3>
+    <div id="rankingList"></div>
+  </div>
+  <div id="rankingExtended">
+    <h3>🌟 Top 20 Extendido</h3>
+    <div id="rankingExtendedList"></div>
   </div>
 </div>
-
-<!-- ... el resto de tu HTML (welcomeScreen, header, inputs, board, ranking, etc.) se mantiene igual ... -->
+<div id="feedbackText"></div>
 
 <script>
-// ───────────────────────────────────────────────
-// Tus variables y funciones anteriores se mantienen
-// ───────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "impacto-preciso.firebaseapp.com",
+  projectId: "impacto-preciso",
+  storageBucket: "impacto-preciso.appspot.com",
+  messagingSenderId: "769895871874",
+  appId: "1:769895871874:web:a964369999bdd42cc04b9b"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-let throwsCount = 0;           // nuevo: contador de lanzamientos
-let bullseyeCount = 0;         // para logros
-let perfectStreak = 0;         // racha de 100 pts
-let maxStreak = 0;
+let time = 10;
+let score = 0;
+let difficultyMultiplier = 1;
+let gameActive = false;
+let interval = null;
+let canThrow = true;
+let currentPlayerName = "";
 
-// Agrega esto dentro de throwDart (al inicio de la función)
+// Recordar nombre al cargar
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('lastPlayerName');
+  if (saved) {
+    document.getElementById('playerName').value = saved;
+    console.log("Nombre recordado:", saved);
+  }
+});
+
+function enterGame() {
+  const welcome = document.getElementById("welcomeScreen");
+  if (!welcome) return;
+  welcome.style.opacity = "0";
+  setTimeout(() => {
+    welcome.remove();
+    document.querySelector("header").style.display = "block";
+    document.getElementById("timer").style.display = "block";
+    document.getElementById("score").style.display = "block";
+    document.querySelector(".game-container").style.display = "flex";
+    document.getElementById("playerName").focus();
+  }, 800);
+}
+
+function startGame(){
+  const nameInput = document.getElementById("playerName");
+  const name = nameInput.value.trim();
+  const difficulty = document.getElementById("difficulty").value;
+  if(name === "") {
+    alert("Escribe tu nombre");
+    return;
+  }
+  localStorage.setItem('lastPlayerName', name);
+  currentPlayerName = name;
+  console.log("Partida iniciada para:", name);
+  if(difficulty === "easy") { time = 15; difficultyMultiplier = 1; }
+  else if(difficulty === "medium"){ time = 10; difficultyMultiplier = 1.5; }
+  else { time = 7; difficultyMultiplier = 2; }
+  score = 0;
+  gameActive = true;
+  document.getElementById("score").innerText = "Puntos: 0";
+  document.getElementById("timer").innerText = "Tiempo: " + time;
+  if(interval) clearInterval(interval);
+  interval = setInterval(() => {
+    time--;
+    document.getElementById("timer").innerText = "Tiempo: " + time;
+    if(time <= 0){
+      clearInterval(interval);
+      gameActive = false;
+      alert("¡Juego terminado! Tu puntaje fue: " + score);
+      if (currentPlayerName) {
+        saveScore(currentPlayerName, score);
+      } else {
+        console.error("No hay nombre para guardar");
+      }
+    }
+  }, 1000);
+}
+
+function resetGame(){
+  clearInterval(interval);
+  gameActive = false;
+  time = 10;
+  score = 0;
+  document.getElementById("timer").innerText = "Tiempo: 10";
+  document.getElementById("score").innerText = "Puntos: 0";
+}
+
 function throwDart(event){
   if(!gameActive || !canThrow) return;
-
-  // Anti-spam: mínimo 180ms entre clics (ya lo tenías, pero reforzamos)
   canThrow = false;
   setTimeout(() => { canThrow = true; }, 180);
-
-  throwsCount++;  // nuevo
-
-  // ... el resto de tu throwDart (cálculo de x,y, distance, points, totalPoints, etc.) ...
-
-  // Después de calcular totalPoints:
+  const board = document.getElementById("board");
+  const rect = board.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  const distance = Math.sqrt((x - centerX)**2 + (y - centerY)**2);
+  if (distance > 160) return;
+  let points = 0;
+  if (distance < 30) points = 100;
+  else if (distance < 60) points = 80;
+  else if (distance < 90) points = 60;
+  else if (distance < 120) points = 40;
+  else if (distance < 150) points = 20;
+  const totalPoints = Math.floor(points * difficultyMultiplier);
   score += totalPoints;
   document.getElementById("score").innerText = "Puntos: " + score;
-
-  // Para logros
-  if (points === 100) {
-    bullseyeCount++;
-    perfectStreak++;
-    maxStreak = Math.max(maxStreak, perfectStreak);
-  } else {
-    perfectStreak = 0;
-  }
-
-  // Animación del dardo (ya la tenías mejorada)
+  const dart = document.getElementById("dart");
   dart.style.left = x + "px";
   dart.style.top = y + "px";
   dart.style.display = "block";
-  dart.style.animation = "none";
-  dart.offsetHeight;
-  dart.style.animation = "dartThrow 0.35s ease-out";
   setTimeout(() => { dart.style.display = "none"; }, 700);
-
-  // ... resto de animaciones, feedback, sonido ...
+  board.classList.add("hit");
+  setTimeout(() => board.classList.remove("hit"), 600);
+  const feedback = document.getElementById("feedbackText");
+  feedback.innerText = "+" + totalPoints + " pts!";
+  feedback.style.animation = "none";
+  feedback.offsetHeight;
+  feedback.style.animation = "floatUp 1.4s ease-out forwards";
+  feedback.style.opacity = "1";
+  const audio = new Audio("https://cdn.freesound.org/previews/387/387232_7253554-lq.mp3");
+  audio.volume = 0.5;
+  audio.play().catch(() => {});
+  setTimeout(() => {
+    feedback.style.opacity = "0";
+  }, 1400);
 }
 
-// Modifica el final del timer (cuando time <= 0)
-if(time <= 0){
-  clearInterval(interval);
-  gameActive = false;
-
-  // Puntaje máximo teórico aproximado (anti-cheat simple)
-  const maxPossible = difficultyMultiplier === 1 ? 1500 : difficultyMultiplier === 1.5 ? 2250 : 3000;
-  if (score > maxPossible) {
-    alert("¡Puntaje imposible detectado! No se guardará.");
-    console.warn("Anti-cheat: puntaje excedió máximo teórico");
-    return;
-  }
-
-  const finalScoreText = `¡Juego terminado! Puntaje: ${score}`;
-  alert(finalScoreText);
-
-  if (currentPlayerName) {
-    saveScore(currentPlayerName, score);
-    showStatsAndAchievements(score);
-  }
-}
-
-// Nueva función: mostrar estadísticas y logros al terminar
-function showStatsAndAchievements(finalScore) {
-  const accuracy = throwsCount > 0 ? Math.round((bullseyeCount / throwsCount) * 100) : 0;
-
-  document.getElementById("finalScore").innerText = finalScore + " pts";
-  document.getElementById("throwsCount").innerText = throwsCount;
-  document.getElementById("precisionStat").innerText = accuracy + "%";
-  document.getElementById("precisionStat").style.color = accuracy >= 50 ? "#00ff88" : accuracy >= 30 ? "#ffff00" : "#ff4444";
-
-  // Logros
-  let earned = [];
-  const achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
-
-  // Definición de logros (puedes agregar más)
-  const achievementList = [
-    { id: "first500", name: "Primeros 500", cond: finalScore >= 500, desc: "Llegaste a 500 pts en una partida" },
-    { id: "bullseye5", name: "Bullseye x5", cond: bullseyeCount >= 5, desc: "5 tiros al centro en una partida" },
-    { id: "perfect3",  name: "Racha perfecta", cond: perfectStreak >= 3, desc: "3 tiros perfectos seguidos" },
-    { id: "master",    name: "Maestro del centro", cond: accuracy >= 60, desc: "Más del 60% de precisión" }
-  ];
-
-  let html = "";
-  achievementList.forEach(ach => {
-    if (ach.cond && !achievements[ach.id]) {
-      achievements[ach.id] = true;
-      earned.push(ach.name);
+async function saveScore(nombre, puntosNuevos) {
+  console.log("Intentando guardar:", nombre, puntosNuevos);
+  try {
+    const q = db.collection("ranking").where("nombre", "==", nombre).limit(1);
+    const querySnapshot = await q.get();
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      const oldScore = doc.data().puntos || 0;
+      console.log("Puntaje anterior encontrado:", oldScore);
+      if (puntosNuevos > oldScore) {
+        await doc.ref.update({
+          puntos: puntosNuevos,
+          fecha: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log("¡Récord actualizado!");
+      } else {
+        console.log("Puntaje no mejorado, no se guarda");
+      }
+    } else {
+      await db.collection("ranking").add({
+        nombre: nombre,
+        puntos: puntosNuevos,
+        fecha: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      console.log("Nuevo jugador registrado");
     }
-    const unlocked = achievements[ach.id] ? "unlocked" : "";
-    html += `<div class="badge ${unlocked}">${ach.name}</div>`;
+  } catch (err) {
+    console.error("ERROR al guardar puntaje:", err);
+    alert("Error al guardar puntaje. Revisa consola (F12).");
+  }
+}
+
+// Ranking principal (Top 25 compacto)
+db.collection("ranking")
+  .orderBy("puntos", "desc")
+  .limit(25)
+  .onSnapshot(snapshot => {
+    let html = "";
+    let position = 1;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      let medal = position === 1 ? "🥇" : position === 2 ? "🥈" : position === 3 ? "🥉" : "";
+      const className = position === 1 ? ' class="top1"' : '';
+      html += `<p${className}>${medal} ${data.nombre} - ${data.puntos} pts</p>`;
+      position++;
+    });
+    document.getElementById("rankingList").innerHTML = html || "<p>Aún no hay puntajes</p>";
   });
 
-  localStorage.setItem('achievements', JSON.stringify(achievements));
-
-  document.getElementById("achievementsEarned").innerHTML = earned.length > 0 
-    ? "<h3>Nuevos logros desbloqueados:</h3>" + earned.map(e => `<div class="badge unlocked">${e}</div>`).join("")
-    : "<p>¡Sigue jugando para desbloquear logros!</p>";
-
-  document.getElementById("statsScreen").style.display = "flex";
-
-  // También actualizamos la lista completa de logros si quieres un botón para verla
-  document.getElementById("achievementsList").innerHTML = html || "<p>Aún sin logros</p>";
-}
-
-// Cerrar pantalla de stats
-function closeStats() {
-  document.getElementById("statsScreen").style.display = "none";
-  resetGame(); // o no, según prefieras
-  throwsCount = 0;
-  bullseyeCount = 0;
-  perfectStreak = 0;
-  maxStreak = 0;
-}
-
-// Bonus: botón para ver logros en cualquier momento (agrega donde quieras, ej en header)
-function showAchievements() {
-  const achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
-  let html = "";
-  // Usa la misma lista de arriba para mostrar todos
-  const achievementList = [ /* copia la lista de arriba */ ];
-  achievementList.forEach(ach => {
-    const unlocked = achievements[ach.id] ? "unlocked" : "";
-    html += `<div class="badge ${unlocked}">${ach.name}</div>`;
+// Ranking extendido GRANDE (Top 20)
+db.collection("ranking")
+  .orderBy("puntos", "desc")
+  .limit(20)
+  .onSnapshot(snapshot => {
+    let html = "";
+    let position = 1;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      let medal = "";
+      let className = "";
+      if (position === 1) {
+        medal = "🥇";
+        className = ' class="top1"';
+      } else if (position === 2) medal = "🥈";
+      else if (position === 3) medal = "🥉";
+      html += `<p${className}>#${position} ${medal} ${data.nombre} - ${data.puntos} pts</p>`;
+      position++;
+    });
+    document.getElementById("rankingExtendedList").innerHTML = html || "<p>Aún no hay suficientes puntajes</p>";
   });
-  document.getElementById("achievementsList").innerHTML = html || "<p>Aún sin logros</p>";
-  document.getElementById("achievements").style.display = "flex";
-}
-
-// Ranking sigue igual, solo con .limit(25) y #${position} como ya cambiaste
-
-// ... resto de tu código (saveScore, onSnapshot del ranking, enterGame, startGame, resetGame) ...
 </script>
+</body>
+</html>
