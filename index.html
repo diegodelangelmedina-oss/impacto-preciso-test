@@ -87,6 +87,54 @@ header, .game-container, #timer, #score {
   80% { opacity:1; transform:translate(-50%, -140%) scale(1.1); }
   100% { opacity:0; transform:translate(-50%, -180%) scale(1); }
 }
+  #dart {
+  width: 16px !important;
+  height: 32px !important;
+  transform-origin: bottom center;
+  transition: all 0.3s ease-out;
+  display: none;
+}
+
+.dart-fly {
+  position: fixed !important;
+  width: 32px !important;
+  height: 64px !important;
+  z-index: 1000;
+  pointer-events: none;
+  transform-origin: bottom center;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+  animation: fly 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes fly {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  60% { transform: translateY(-20px) rotate(720deg) scale(0.9); opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg) scale(0.7); opacity: 0.8; }
+}
+
+.dart-stuck {
+  animation: stuck 0.4s ease-out;
+}
+
+@keyframes stuck {
+  0%, 100% { transform: rotate(0deg) scale(0.7); }
+  25% { transform: rotate(-5deg) scale(0.75); }
+  75% { transform: rotate(5deg) scale(0.65); }
+}
+
+#board.clavado::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 40px #ff4444;
+  animation: pulse 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
 </style>
 </head>
 <body>
@@ -122,7 +170,11 @@ header, .game-container, #timer, #score {
 
 <div class="game-container">
   <div id="board" onclick="throwDart(event)">
-    <div id="dart"></div>
+<div id="dart">
+  <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+    <path fill="#444" stroke="#222" stroke-width="4" d="M134.745 22.098c-4.538-.146-9.08 1.43-14.893 7.243-5.586 5.586-11.841 21.725-15.248 35.992-.234.979-.444 1.907-.654 2.836l114.254 105.338c-7.18-28.538-17.555-59.985-29.848-86.75-11.673-25.418-25.249-46.657-37.514-57.024-6.132-5.183-11.56-7.488-16.097-7.635zM92.528 82.122L82.124 92.526 243.58 267.651l24.072-24.072L92.528 82.122zm-24.357 21.826c-.929.21-1.857.42-2.836.654-14.267 3.407-30.406 9.662-35.993 15.248-5.813 5.813-7.39 10.355-7.244 14.893.147 4.538 2.452 9.965 7.635 16.098 10.367 12.265 31.608 25.842 57.025 37.515 26.766 12.293 58.211 22.669 86.749 29.848L68.17 103.948zM280.899 255.79l-25.107 25.107 73.265 79.469 31.31-31.31L280.9 255.79zm92.715 85.476l-32.346 32.344 2.07 2.246c.061.058 4.419 4.224 10.585 6.28 6.208 2.069 12.71 2.88 21.902-6.313 9.192-9.192 8.38-15.694 6.31-21.902-2.057-6.174-6.235-10.54-6.283-10.59l-2.238-2.065zm20.172 41.059a46.23 46.23 0 0 1-5.233 6.226 46.241 46.241 0 0 1-6.226 5.235L489.91 489.91l-96.125-107.586z"/>
+  </svg>
+</div>
   </div>
   <div id="ranking">
     <h3>🏆 Ranking Global</h3>
@@ -225,11 +277,10 @@ function resetGame(){
   document.getElementById("timer").innerText = "Tiempo: 10";
   document.getElementById("score").innerText = "Puntos: 0";
 }
-
-function throwDart(event){
-  if(!gameActive || !canThrow) return;
+function throwDart(event) {
+  if (!gameActive || !canThrow) return;
   canThrow = false;
-  setTimeout(() => { canThrow = true; }, 180);
+  setTimeout(() => { canThrow = true; }, 300);
 
   const board = document.getElementById("board");
   const rect = board.getBoundingClientRect();
@@ -238,7 +289,6 @@ function throwDart(event){
   const centerX = rect.width / 2;
   const centerY = rect.height / 2;
   const distance = Math.sqrt((x - centerX)**2 + (y - centerY)**2);
-
   if (distance > 160) return;
 
   let points = 0;
@@ -247,35 +297,74 @@ function throwDart(event){
   else if (distance < 90) points = 60;
   else if (distance < 120) points = 40;
   else if (distance < 150) points = 20;
-
   const totalPoints = Math.floor(points * difficultyMultiplier);
   score += totalPoints;
   document.getElementById("score").innerText = "Puntos: " + score;
 
-  const dart = document.getElementById("dart");
-  dart.style.left = x + "px";
-  dart.style.top = y + "px";
-  dart.style.display = "block";
-  setTimeout(() => { dart.style.display = "none"; }, 700);
+  // Crear dardo volador
+  const hitX = rect.left + x;
+  const hitY = rect.top + y;
+  const startX = window.innerWidth / 2;
+  const startY = window.innerHeight + 100;
 
-  board.classList.add("hit");
-  setTimeout(() => board.classList.remove("hit"), 600);
+  const flyDart = document.createElement('div');
+  flyDart.className = 'dart-fly';
+  flyDart.innerHTML = `<svg viewBox="0 0 512 512" style="width:100%;height:100%;"><path fill="#555" stroke="#333" stroke-width="3" d="M134.745 22.098c-4.538-.146-9.08 1.43-14.893 7.243-5.586 5.586-11.841 21.725-15.248 35.992-.234.979-.444 1.907-.654 2.836l114.254 105.338c-7.18-28.538-17.555-59.985-29.848-86.75-11.673-25.418-25.249-46.657-37.514-57.024-6.132-5.183-11.56-7.488-16.097-7.635zM92.528 82.122L82.124 92.526 243.58 267.651l24.072-24.072L92.528 82.122zm-24.357 21.826c-.929.21-1.857.42-2.836.654-14.267 3.407-30.406 9.662-35.993 15.248-5.813 5.813-7.39 10.355-7.244 14.893.147 4.538 2.452 9.965 7.635 16.098 10.367 12.265 31.608 25.842 57.025 37.515 26.766 12.293 58.211 22.669 86.749 29.848L68.17 103.948zM280.899 255.79l-25.107 25.107 73.265 79.469 31.31-31.31L280.9 255.79zm92.715 85.476l-32.346 32.344 2.07 2.246c.061.058 4.419 4.224 10.585 6.28 6.208 2.069 12.71 2.88 21.902-6.313 9.192-9.192 8.38-15.694 6.31-21.902-2.057-6.174-6.235-10.54-6.283-10.59l-2.238-2.065zm20.172 41.059a46.23 46.23 0 0 1-5.233 6.226 46.241 46.241 0 0 1-6.226 5.235L489.91 489.91l-96.125-107.586z"/></svg>`;
+  flyDart.style.left = startX + 'px';
+  flyDart.style.top = startY + 'px';
+  document.body.appendChild(flyDart);
 
-  const feedback = document.getElementById("feedbackText");
-  feedback.innerText = "+" + totalPoints + " pts!";
-  feedback.style.animation = "none";
-  feedback.offsetHeight;
-  feedback.style.animation = "floatUp 1.4s ease-out forwards";
-  feedback.style.opacity = "1";
-
-  const audio = new Audio("https://cdn.freesound.org/previews/387/387232_7253554-lq.mp3");
-  audio.volume = 0.5;
-  audio.play().catch(() => {});
-
+  // Mover el dardo volador al punto de impacto
   setTimeout(() => {
-    feedback.style.opacity = "0";
-  }, 1400);
+    const angleToCenter = Math.atan2(centerY - y, centerX - x) * 180 / Math.PI;
+    flyDart.style.left = (hitX - 16) + 'px';
+    flyDart.style.top = (hitY - 32) + 'px';
+    flyDart.style.transform += ` rotate(${angleToCenter}deg)`;
+  }, 10);
+
+  // Al terminar el vuelo: clavar y limpiar
+  setTimeout(() => {
+    // Limpiar dardos voladores viejos (máx 5)
+    const oldFlies = document.querySelectorAll('.dart-fly');
+    if (oldFlies.length > 5) oldFlies[0].remove();
+
+    // Clavar nuevo dardo (creamos uno nuevo cada vez para acumular)
+    const newStuckDart = document.createElement('div');
+    newStuckDart.className = 'dart';
+    newStuckDart.innerHTML = `<svg viewBox="0 0 512 512" style="width:100%;height:100%;"><path fill="#444" stroke="#222" stroke-width="4" d="M134.745 22.098c-4.538-.146-9.08 1.43-14.893 7.243-5.586 5.586-11.841 21.725-15.248 35.992-.234.979-.444 1.907-.654 2.836l114.254 105.338c-7.18-28.538-17.555-59.985-29.848-86.75-11.673-25.418-25.249-46.657-37.514-57.024-6.132-5.183-11.56-7.488-16.097-7.635zM92.528 82.122L82.124 92.526 243.58 267.651l24.072-24.072L92.528 82.122zm-24.357 21.826c-.929.21-1.857.42-2.836.654-14.267 3.407-30.406 9.662-35.993 15.248-5.813 5.813-7.39 10.355-7.244 14.893.147 4.538 2.452 9.965 7.635 16.098 10.367 12.265 31.608 25.842 57.025 37.515 26.766 12.293 58.211 22.669 86.749 29.848L68.17 103.948zM280.899 255.79l-25.107 25.107 73.265 79.469 31.31-31.31L280.9 255.79zm92.715 85.476l-32.346 32.344 2.07 2.246c.061.058 4.419 4.224 10.585 6.28 6.208 2.069 12.71 2.88 21.902-6.313 9.192-9.192 8.38-15.694 6.31-21.902-2.057-6.174-6.235-10.54-6.283-10.59l-2.238-2.065zm20.172 41.059a46.23 46.23 0 0 1-5.233 6.226 46.241 46.241 0 0 1-6.226 5.235L489.91 489.91l-96.125-107.586z"/></svg>`;
+    newStuckDart.style.position = 'absolute';
+    newStuckDart.style.width = '16px';
+    newStuckDart.style.height = '32px';
+    newStuckDart.style.transformOrigin = 'bottom center';
+    newStuckDart.style.left = x + 'px';
+    newStuckDart.style.top = y + 'px';
+    newStuckDart.style.transform = `rotate(${angleToCenter}deg) scale(0.7)`;
+    board.appendChild(newStuckDart);
+
+    // Limpiar dardos clavados viejos (máx 5)
+    const allStuck = board.querySelectorAll('.dart');
+    if (allStuck.length > 5) {
+      allStuck[0].remove();
+    }
+
+    // Efectos visuales
+    board.classList.add('hit', 'clavado');
+    setTimeout(() => {
+      board.classList.remove('hit', 'clavado');
+    }, 800);
+
+    // Feedback y sonido
+    const feedback = document.getElementById("feedbackText");
+    feedback.innerText = "+" + totalPoints + " pts!";
+    feedback.style.opacity = "1";
+    feedback.style.animation = "floatUp 1.4s ease-out forwards";
+    const audio = new Audio("https://cdn.freesound.org/previews/387/387232_7253554-lq.mp3");
+    audio.volume = 0.5;
+    audio.play().catch(() => {});
+    setTimeout(() => { feedback.style.opacity = "0"; }, 1400);
+  }, 800);
 }
+
 
 async function saveScore(nombre, puntosNuevos) {
   console.log("Intentando guardar:", nombre, puntosNuevos);
@@ -330,4 +419,5 @@ db.collection("ranking")
 </script>
 </body>
 </html>
+
 
