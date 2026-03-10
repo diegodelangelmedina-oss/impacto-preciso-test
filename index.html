@@ -7,6 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 <style>
+  
 
   #board.bullseye{
   box-shadow:0 0 120px gold, 0 0 200px red;
@@ -122,11 +123,17 @@ header, .game-container, #timer, #score {display: none;}
   40% { transform: translate(0, -60px) rotate(0deg) scale(1.0); opacity: 1; }
   100% { transform: translate(0, 0) rotate(180deg) scale(0.7); opacity: 0.9; }
 }
+  .game-logo{
+  width:140px;
+  margin-bottom:10px;
+  filter: drop-shadow(0 0 15px red);
+}
 </style>
 </head>
 <body>
 <div id="welcomeScreen">
   <div class="welcome-content">
+    <img src="logo.png" class="game-logo">
     <h1 class="title">IMPACTO PRECISO 🎯</h1>
     <p class="subtitle">Proyecto Universitario</p>
     <p>Materia: Formación de Emprendedores</p>
@@ -380,6 +387,7 @@ db.collection("ranking").orderBy("puntos", "desc").limit(10).onSnapshot(snapshot
 </script>
 </body>
 </html>
+
 
 
 
