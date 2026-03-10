@@ -144,6 +144,16 @@ header, .game-container, #timer, #score {
   0% { opacity: 1; transform: scale(1); }
   100% { opacity: 0; transform: scale(1.1); }
 }
+  #dart svg path {
+  fill: #c8102e !important;       /* color principal */
+  stroke: #8b0000 !important;     /* borde */
+}
+
+/* Para los dardos clavados nuevos (los que crea JS) */
+.dart svg path {
+  fill: #c8102e !important;
+  stroke: #8b0000 !important;
+}
 </style>
 </head>
 <body>
@@ -428,6 +438,7 @@ db.collection("ranking")
 </script>
 </body>
 </html>
+
 
 
 
