@@ -378,28 +378,9 @@ db.collection("ranking")
     document.getElementById("rankingList").innerHTML = html || "<p>Aún no hay puntajes</p>";
   });
 
-// Ranking extendido GRANDE (Top 20)
-db.collection("ranking")
-  .orderBy("puntos", "desc")
-  .limit(20)
-  .onSnapshot(snapshot => {
-    let html = "";
-    let position = 1;
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      let medal = "";
-      let className = "";
-      if (position === 1) {
-        medal = "🥇";
-        className = ' class="top1"';
-      } else if (position === 2) medal = "🥈";
-      else if (position === 3) medal = "🥉";
-      html += `<p${className}>#${position} ${medal} ${data.nombre} - ${data.puntos} pts</p>`;
-      position++;
-    });
-    document.getElementById("rankingExtendedList").innerHTML = html || "<p>Aún no hay suficientes puntajes</p>";
-  });
+
 </script>
 </body>
 </html>
+
 
