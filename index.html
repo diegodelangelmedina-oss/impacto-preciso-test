@@ -280,7 +280,16 @@ function throwDart(event) {
   setTimeout(() => {
     const oldFlies = document.querySelectorAll('.dart-fly');
     if (oldFlies.length > 5) oldFlies[0].remove();
+setTimeout(() => {
+  const oldFlies = document.querySelectorAll('.dart-fly');
+  if (oldFlies.length > 5) oldFlies[0].remove();
 
+  // eliminar el dardo que voló después de la animación
+  setTimeout(() => {
+    flyDart.remove();
+  }, 1000);
+
+  const newStuckDart = document.createElement('div');
     const newStuckDart = document.createElement('div');
     newStuckDart.className = 'dart';
     newStuckDart.innerHTML = `<svg viewBox="0 0 512 512" style="width:100%;height:100%;">
@@ -350,3 +359,4 @@ db.collection("ranking").orderBy("puntos", "desc").limit(10).onSnapshot(snapshot
 </script>
 </body>
 </html>
+
