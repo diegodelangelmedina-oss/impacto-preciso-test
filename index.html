@@ -7,7 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 <style>
-body{
+body {
   margin:0;
   font-family:Arial, Helvetica, sans-serif;
   background:linear-gradient(135deg,#000000,#1a0000,#330000);
@@ -15,7 +15,7 @@ body{
   text-align:center;
   overflow-x:hidden;
 }
-body::before{
+body::before {
   content:"IMPACTO PRECISO";
   position:fixed;
   top:50%;
@@ -28,17 +28,26 @@ body::before{
   pointer-events:none;
   z-index:0;
 }
-header{padding:20px;position:relative;z-index:1;}
-h1{color:#ff1a1a;text-shadow:0 0 15px red;}
-.game-container{display:flex;flex-wrap:wrap;justify-content:center;gap:40px;padding:20px;position:relative;z-index:1;}
-#board{width:320px;height:320px;border-radius:50%;background:radial-gradient(circle, red 20%, white 20%, white 40%, red 40%, red 60%, white 60%, white 80%, red 80%);position:relative;cursor:pointer;box-shadow:0 0 30px red;transition:box-shadow 0.4s;}
-#ranking{width:260px;background:rgba(255,0,0,0.1);padding:15px;border-radius:10px;backdrop-filter:blur(10px);box-shadow:0 0 15px red;}
-#ranking h3{color:#ff3333;}
-input,select,button{padding:8px;margin:5px;border-radius:5px;border:none;}
-button{cursor:pointer;background:#ff1a1a;color:white;font-weight:bold;}
-button:hover{background:#cc0000;}
-.top1{color:gold;font-weight:bold;font-size:18px;}
-#welcomeScreen{
+header {padding:20px;position:relative;z-index:1;}
+h1 {color:#ff1a1a;text-shadow:0 0 15px red;}
+.game-container {display:flex;flex-wrap:wrap;justify-content:center;gap:40px;padding:20px;position:relative;z-index:1;}
+#board {
+  width:320px;
+  height:320px;
+  border-radius:50%;
+  background:radial-gradient(circle, red 20%, white 20%, white 40%, red 40%, red 60%, white 60%, white 80%, red 80%);
+  position:relative;
+  cursor:pointer;
+  box-shadow:0 0 30px red;
+  transition:box-shadow 0.4s;
+}
+#ranking {width:260px;background:rgba(255,0,0,0.1);padding:15px;border-radius:10px;backdrop-filter:blur(10px);box-shadow:0 0 15px red;}
+#ranking h3 {color:#ff3333;}
+input,select,button {padding:8px;margin:5px;border-radius:5px;border:none;}
+button {cursor:pointer;background:#ff1a1a;color:white;font-weight:bold;}
+button:hover {background:#cc0000;}
+.top1 {color:gold;font-weight:bold;font-size:18px;}
+#welcomeScreen {
   position:fixed;
   inset:0;
   background:linear-gradient(135deg,#000000,#1a0000,#330000);
@@ -49,15 +58,13 @@ button:hover{background:#cc0000;}
   animation:fadeIn 1s ease-in-out;
   transition: opacity 0.8s ease;
 }
-.welcome-content{text-align:center;animation:slideUp 1s ease-out;}
-.title{font-size:50px;color:#ff1a1a;text-shadow:0 0 20px red;}
-.subtitle{font-size:22px;color:#ff6666;}
-.welcome-text{margin:20px 0;max-width:500px;}
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-header, .game-container, #timer, #score {
-  display: none;
-}
+.welcome-content {text-align:center;animation:slideUp 1s ease-out;}
+.title {font-size:50px;color:#ff1a1a;text-shadow:0 0 20px red;}
+.subtitle {font-size:22px;color:#ff6666;}
+.welcome-text {margin:20px 0;max-width:500px;}
+@keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp {from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+header, .game-container, #timer, #score {display: none;}
 #feedbackText {
   position:absolute;
   left:50%;
@@ -72,9 +79,7 @@ header, .game-container, #timer, #score {
   opacity:0;
   transition:opacity 0.6s, transform 0.6s;
 }
-#board.hit {
-  animation: glow 0.6s ease-out;
-}
+#board.hit {animation: glow 0.6s ease-out;}
 @keyframes glow {
   0% { box-shadow: 0 0 30px red; }
   50% { box-shadow: 0 0 70px #ff4444, 0 0 120px #ff0000; }
@@ -87,11 +92,14 @@ header, .game-container, #timer, #score {
   100% { opacity:0; transform:translate(-50%, -180%) scale(1); }
 }
 #dart {
+  position: absolute;
   width: 16px !important;
   height: 32px !important;
   transform-origin: bottom center;
-  transition: all 0.3s ease-out;
   display: none;
+}
+.dart, .dart-fly {
+  transform-origin: bottom center;
 }
 .dart-fly {
   position: fixed !important;
@@ -99,27 +107,15 @@ header, .game-container, #timer, #score {
   height: 64px !important;
   z-index: 1000;
   pointer-events: none;
-  transform-origin: bottom center;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
   animation: fly 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
 @keyframes fly {
-  0% {
-    transform: translate(0, 0) rotate(0deg) scale(1.1);
-    opacity: 1;
-  }
-  40% {
-    transform: translate(0, -60px) rotate(0deg) scale(1.0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(0, 0) rotate(180deg) scale(0.7);
-    opacity: 0.9;
-  }
+  0% { transform: translate(0, 0) rotate(0deg) scale(1.1); opacity: 1; }
+  40% { transform: translate(0, -60px) rotate(0deg) scale(1.0); opacity: 1; }
+  100% { transform: translate(0, 0) rotate(180deg) scale(0.7); opacity: 0.9; }
 }
-.dart-stuck {
-  animation: stuck 0.4s ease-out;
-}
+.dart-stuck {animation: stuck 0.4s ease-out;}
 @keyframes stuck {
   0%, 100% { transform: rotate(0deg) scale(0.7); }
   25% { transform: rotate(-5deg) scale(0.75); }
@@ -166,20 +162,10 @@ header, .game-container, #timer, #score {
 <h2 id="timer">Tiempo: 10</h2>
 <h2 id="score">Puntos: 0</h2>
 <div class="game-container">
- <div id="board" onclick="throwDart(event)">
-  <div id="dart">
-    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
-      <!-- Cuerpo principal rojo -->
-      <path fill="#c8102e" stroke="#8b0000" stroke-width="4" d="M134.745 22.098c-4.538-.146-9.08 1.43-14.893 7.243-5.586 5.586-11.841 21.725-15.248 35.992-.234.979-.444 1.907-.654 2.836l114.254 105.338c-7.18-28.538-17.555-59.985-29.848-86.75-11.673-25.418-25.249-46.657-37.514-57.024-6.132-5.183-11.56-7.488-16.097-7.635zM92.528 82.122L82.124 92.526 243.58 267.651l24.072-24.072L92.528 82.122zm-24.357 21.826c-.929.21-1.857.42-2.836.654-14.267 3.407-30.406 9.662-35.993 15.248-5.813 5.813-7.39 10.355-7.244 14.893.147 4.538 2.452 9.965 7.635 16.098 10.367 12.265 31.608 25.842 57.025 37.515 26.766 12.293 58.211 22.669 86.749 29.848L68.17 103.948zM280.899 255.79l-25.107 25.107 73.265 79.469 31.31-31.31L280.9 255.79zm92.715 85.476l-32.346 32.344 2.07 2.246c.061.058 4.419 4.224 10.585 6.28 6.208 2.069 12.71 2.88 21.902-6.313 9.192-9.192 8.38-15.694 6.31-21.902-2.057-6.174-6.235-10.54-6.283-10.59l-2.238-2.065zm20.172 41.059a46.23 46.23 0 0 1-5.233 6.226 46.241 46.241 0 0 1-6.226 5.235L489.91 489.91l-96.125-107.586z"/>
-      <!-- Plumas blancas con borde negro -->
-      <path fill="#ffffff" stroke="#000000" stroke-width="3" d="M256 100 L240 60 L256 20 L272 60 Z M256 100 L240 140 L256 180 L272 140 Z M256 100 L220 80 L180 100 L220 120 Z M256 100 L292 80 L332 100 L292 120 Z"/>
-    </svg>
-  </div>
-</div>
+  <div id="board" onclick="throwDart(event)">
+    <div id="dart">
       <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
-        <!-- Cuerpo principal rojo -->
         <path fill="#c8102e" stroke="#8b0000" stroke-width="4" d="M134.745 22.098c-4.538-.146-9.08 1.43-14.893 7.243-5.586 5.586-11.841 21.725-15.248 35.992-.234.979-.444 1.907-.654 2.836l114.254 105.338c-7.18-28.538-17.555-59.985-29.848-86.75-11.673-25.418-25.249-46.657-37.514-57.024-6.132-5.183-11.56-7.488-16.097-7.635zM92.528 82.122L82.124 92.526 243.58 267.651l24.072-24.072L92.528 82.122zm-24.357 21.826c-.929.21-1.857.42-2.836.654-14.267 3.407-30.406 9.662-35.993 15.248-5.813 5.813-7.39 10.355-7.244 14.893.147 4.538 2.452 9.965 7.635 16.098 10.367 12.265 31.608 25.842 57.025 37.515 26.766 12.293 58.211 22.669 86.749 29.848L68.17 103.948zM280.899 255.79l-25.107 25.107 73.265 79.469 31.31-31.31L280.9 255.79zm92.715 85.476l-32.346 32.344 2.07 2.246c.061.058 4.419 4.224 10.585 6.28 6.208 2.069 12.71 2.88 21.902-6.313 9.192-9.192 8.38-15.694 6.31-21.902-2.057-6.174-6.235-10.54-6.283-10.59l-2.238-2.065zm20.172 41.059a46.23 46.23 0 0 1-5.233 6.226 46.241 46.241 0 0 1-6.226 5.235L489.91 489.91l-96.125-107.586z"/>
-        <!-- Plumas blancas con borde negro -->
         <path fill="#ffffff" stroke="#000000" stroke-width="3" d="M256 100 L240 60 L256 20 L272 60 Z M256 100 L240 140 L256 180 L272 140 Z M256 100 L220 80 L180 100 L220 120 Z M256 100 L292 80 L332 100 L292 120 Z"/>
       </svg>
     </div>
@@ -258,6 +244,10 @@ function startGame(){
     if(time <= 0){
       clearInterval(interval);
       gameActive = false;
+      
+      // Limpieza de dardos al terminar la ronda
+      document.querySelectorAll('.dart').forEach(d => d.remove());
+      
       alert("¡Juego terminado! Tu puntaje fue: " + score);
       if (currentPlayerName) {
         saveScore(currentPlayerName, score);
@@ -275,7 +265,6 @@ function resetGame(){
   score = 0;
   document.getElementById("timer").innerText = "Tiempo: 10";
   document.getElementById("score").innerText = "Puntos: 0";
-  // Opcional: limpiar dardos clavados al reiniciar
   document.querySelectorAll('.dart').forEach(d => d.remove());
 }
 
@@ -310,7 +299,7 @@ function throwDart(event) {
 
   const flyDart = document.createElement('div');
   flyDart.className = 'dart-fly';
-  flyDart.innerHTML = `<svg viewBox="0 0 512 512" style="width:100%;height:100%;">
+  flyDart.innerHTML = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
     <path fill="#c8102e" stroke="#8b0000" stroke-width="4" d="M134.745 22.098c-4.538-.146-9.08 1.43-14.893 7.243-5.586 5.586-11.841 21.725-15.248 35.992-.234.979-.444 1.907-.654 2.836l114.254 105.338c-7.18-28.538-17.555-59.985-29.848-86.75-11.673-25.418-25.249-46.657-37.514-57.024-6.132-5.183-11.56-7.488-16.097-7.635zM92.528 82.122L82.124 92.526 243.58 267.651l24.072-24.072L92.528 82.122zm-24.357 21.826c-.929.21-1.857.42-2.836.654-14.267 3.407-30.406 9.662-35.993 15.248-5.813 5.813-7.39 10.355-7.244 14.893.147 4.538 2.452 9.965 7.635 16.098 10.367 12.265 31.608 25.842 57.025 37.515 26.766 12.293 58.211 22.669 86.749 29.848L68.17 103.948zM280.899 255.79l-25.107 25.107 73.265 79.469 31.31-31.31L280.9 255.79zm92.715 85.476l-32.346 32.344 2.07 2.246c.061.058 4.419 4.224 10.585 6.28 6.208 2.069 12.71 2.88 21.902-6.313 9.192-9.192 8.38-15.694 6.31-21.902-2.057-6.174-6.235-10.54-6.283-10.59l-2.238-2.065zm20.172 41.059a46.23 46.23 0 0 1-5.233 6.226 46.241 46.241 0 0 1-6.226 5.235L489.91 489.91l-96.125-107.586z"/>
     <path fill="#ffffff" stroke="#000000" stroke-width="3" d="M256 100 L240 60 L256 20 L272 60 Z M256 100 L240 140 L256 180 L272 140 Z M256 100 L220 80 L180 100 L220 120 Z M256 100 L292 80 L332 100 L292 120 Z"/>
   </svg>`;
@@ -331,7 +320,7 @@ function throwDart(event) {
 
     const newStuckDart = document.createElement('div');
     newStuckDart.className = 'dart';
-    newStuckDart.innerHTML = `<svg viewBox="0 0 512 512" style="width:100%;height:100%;">
+    newStuckDart.innerHTML = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
       <path fill="#c8102e" stroke="#8b0000" stroke-width="4" d="M134.745 22.098c-4.538-.146-9.08 1.43-14.893 7.243-5.586 5.586-11.841 21.725-15.248 35.992-.234.979-.444 1.907-.654 2.836l114.254 105.338c-7.18-28.538-17.555-59.985-29.848-86.75-11.673-25.418-25.249-46.657-37.514-57.024-6.132-5.183-11.56-7.488-16.097-7.635zM92.528 82.122L82.124 92.526 243.58 267.651l24.072-24.072L92.528 82.122zm-24.357 21.826c-.929.21-1.857.42-2.836.654-14.267 3.407-30.406 9.662-35.993 15.248-5.813 5.813-7.39 10.355-7.244 14.893.147 4.538 2.452 9.965 7.635 16.098 10.367 12.265 31.608 25.842 57.025 37.515 26.766 12.293 58.211 22.669 86.749 29.848L68.17 103.948zM280.899 255.79l-25.107 25.107 73.265 79.469 31.31-31.31L280.9 255.79zm92.715 85.476l-32.346 32.344 2.07 2.246c.061.058 4.419 4.224 10.585 6.28 6.208 2.069 12.71 2.88 21.902-6.313 9.192-9.192 8.38-15.694 6.31-21.902-2.057-6.174-6.235-10.54-6.283-10.59l-2.238-2.065zm20.172 41.059a46.23 46.23 0 0 1-5.233 6.226 46.241 46.241 0 0 1-6.226 5.235L489.91 489.91l-96.125-107.586z"/>
       <path fill="#ffffff" stroke="#000000" stroke-width="3" d="M256 100 L240 60 L256 20 L272 60 Z M256 100 L240 140 L256 180 L272 140 Z M256 100 L220 80 L180 100 L220 120 Z M256 100 L292 80 L332 100 L292 120 Z"/>
     </svg>`;
@@ -343,14 +332,7 @@ function throwDart(event) {
     newStuckDart.style.top = y + 'px';
     newStuckDart.style.transform = `rotate(${angleToCenter}deg) scale(0.7)`;
     board.appendChild(newStuckDart);
-// Hacer que el dardo desaparezca después de 5 segundos
-setTimeout(() => {
-  newStuckDart.style.opacity = '0';
-  newStuckDart.style.transition = 'opacity 0.8s ease-out';
-  setTimeout(() => {
-    newStuckDart.remove();
-  }, 800);
-}, 5000);  // 3000 = 3 segundos
+
     const allStuck = board.querySelectorAll('.dart');
     if (allStuck.length > 5) {
       allStuck[0].remove();
@@ -422,6 +404,3 @@ db.collection("ranking")
 </script>
 </body>
 </html>
-
-
-
