@@ -314,7 +314,7 @@ async function saveScore(nombre, puntosNuevos) {
 
 db.collection("ranking")
   .orderBy("puntos", "desc")
-  .limit(10)
+  .limit(20)
   .onSnapshot(snapshot => {
     let html = "";
     let position = 1;
@@ -330,3 +330,4 @@ db.collection("ranking")
 </script>
 </body>
 </html>
+
