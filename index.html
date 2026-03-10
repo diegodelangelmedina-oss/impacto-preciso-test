@@ -107,9 +107,18 @@ header, .game-container, #timer, #score {
 }
 
 @keyframes fly {
-  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
-  60% { transform: translateY(-20px) rotate(720deg) scale(0.9); opacity: 1; }
-  100% { transform: translateY(0) rotate(0deg) scale(0.7); opacity: 0.8; }
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1.1);
+    opacity: 1;
+  }
+  40% {
+    transform: translate(0, -60px) rotate(0deg) scale(1.0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0) rotate(180deg) scale(0.7);   /* rota 180° al final */
+    opacity: 0.9;
+  }
 }
 
 .dart-stuck {
@@ -419,5 +428,6 @@ db.collection("ranking")
 </script>
 </body>
 </html>
+
 
 
