@@ -335,7 +335,14 @@ function throwDart(event) {
     newStuckDart.style.top = y + 'px';
     newStuckDart.style.transform = `rotate(${angleToCenter}deg) scale(0.7)`;
     board.appendChild(newStuckDart);
-
+// Hacer que el dardo desaparezca después de 5 segundos
+setTimeout(() => {
+  newStuckDart.style.opacity = '0';
+  newStuckDart.style.transition = 'opacity 0.8s ease-out';
+  setTimeout(() => {
+    newStuckDart.remove();
+  }, 800);
+}, 5000);  // 5000 = 5 segundos
     const allStuck = board.querySelectorAll('.dart');
     if (allStuck.length > 5) {
       allStuck[0].remove();
@@ -407,3 +414,4 @@ db.collection("ranking")
 </script>
 </body>
 </html>
+
