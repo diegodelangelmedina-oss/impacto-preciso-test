@@ -31,7 +31,19 @@ body::before{
 header{padding:20px;position:relative;z-index:1;}
 h1{color:#ff1a1a;text-shadow:0 0 15px red;}
 .game-container{display:flex;flex-wrap:wrap;justify-content:center;gap:40px;padding:20px;position:relative;z-index:1;}
-#board{width:320px;height:320px;border-radius:50%;background:radial-gradient(circle, red 20%, white 20%, white 40%, red 40%, red 60%, white 60%, white 80%, red 80%);position:relative;cursor:pointer;box-shadow:0 0 30px red;transition:box-shadow 0.4s;}
+
+  #board{
+width:320px;
+height:320px;
+border-radius:50%;
+background:radial-gradient(circle, red 20%, white 20%, white 40%, red 40%, red 60%, white 60%, white 80%, red 80%);
+position:relative;
+cursor:pointer;
+box-shadow:0 0 30px red;
+transition:box-shadow 0.4s;
+overflow:hidden;
+}
+  
 #ranking{width:260px;background:rgba(255,0,0,0.1);padding:15px;border-radius:10px;backdrop-filter:blur(10px);box-shadow:0 0 15px red;}
 #ranking h3{color:#ff3333;}
 input,select,button{padding:8px;margin:5px;border-radius:5px;border:none;}
@@ -395,6 +407,7 @@ db.collection("ranking").orderBy("puntos", "desc").limit(10).onSnapshot(snapshot
 </script>
 </body>
 </html>
+
 
 
 
