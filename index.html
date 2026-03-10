@@ -383,12 +383,7 @@ async function saveScore(nombre, puntosNuevos) {
       });
       console.log("Nuevo jugador registrado");
     }
-  } catch (err) {
-    console.error("ERROR al guardar puntaje:", err);
-    alert("Error al guardar puntaje. Revisa consola (F12).");
-  }
-}
-
+    
 db.collection("ranking")
   .orderBy("puntos", "desc")
   .limit(20)
@@ -407,3 +402,4 @@ db.collection("ranking")
 </script>
 </body>
 </html>
+
