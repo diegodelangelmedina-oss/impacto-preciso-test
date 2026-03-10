@@ -177,16 +177,55 @@ window.addEventListener('load', () => {
 function enterGame() {
   const welcome = document.getElementById("welcomeScreen");
   welcome.style.opacity = "0";
-  setTimeout(() => {
-    welcome.remove();
-    document.querySelector("header").style.display = "block";
-    document.getElementById("timer").style.display = "block";
-    document.getElementById("score").style.display = "block";
-    document.querySelector(".game-container").style.display = "flex";
-    document.getElementById("playerName").focus();
-  }, 800);
-}
+setTimeout(() => {
 
+  const oldFlies = document.querySelectorAll('.dart-fly');
+  if (oldFlies.length > 5) oldFlies[0].remove();
+
+  // eliminar el dardo volador después de la animación
+  setTimeout(() => {
+    flyDart.remove();
+  }, 1000);
+
+  const angleToCenter = Math.atan2(centerY - y, centerX - x) * 180 / Math.PI;
+
+  const newStuckDart = document.createElement('div');
+  newStuckDart.className = 'dart';
+  newStuckDart.innerHTML = `<svg viewBox="0 0 512 512" style="width:100%;height:100%;">
+    <path fill="#c8102e" stroke="#8b0000" stroke-width="4" d="M134.745 22.098c-4.538-.146-9.08 1.43-14.893 7.243-5.586 5.586-11.841 21.725-15.248 35.992-.234.979-.444 1.907-.654 2.836l114.254 105.338c-7.18-28.538-17.555-59.985-29.848-86.75-11.673-25.418-25.249-46.657-37.514-57.024-6.132-5.183-11.56-7.488-16.097-7.635z"/>
+  </svg>`;
+
+  newStuckDart.style.position = 'absolute';
+  newStuckDart.style.width = '16px';
+  newStuckDart.style.height = '32px';
+  newStuckDart.style.transformOrigin = 'bottom center';
+  newStuckDart.style.left = x + 'px';
+  newStuckDart.style.top = y + 'px';
+  newStuckDart.style.transform = `rotate(${angleToCenter}deg) scale(0.7)`;
+
+  board.appendChild(newStuckDart);
+
+  // máximo 4 dardos clavados
+  const allStuck = board.querySelectorAll('.dart');
+  if (allStuck.length > 4) {
+    allStuck[0].remove();
+  }
+
+  board.classList.add('hit');
+  setTimeout(() => board.classList.remove('hit'), 800);
+
+  const feedback = document.getElementById("feedbackText");
+  feedback.innerText = "+" + totalPoints + " pts!";
+  feedback.style.opacity = "1";
+  feedback.style.animation = "floatUp 1.4s ease-out forwards";
+
+  const audio = new Audio("https://cdn.freesound.org/previews/387/387232_7253554-lq.mp3");
+  audio.volume = 0.5;
+  audio.play().catch(() => {});
+
+  setTimeout(() => { feedback.style.opacity = "0"; }, 1400);
+
+}, 800);
 function startGame(){
   const name = document.getElementById("playerName").value.trim();
   if(name === "") { alert("Escribe tu nombre"); return; }
@@ -356,5 +395,6 @@ db.collection("ranking").orderBy("puntos", "desc").limit(10).onSnapshot(snapshot
 </script>
 </body>
 </html>
+
 
 
