@@ -280,9 +280,6 @@ function throwDart(event) {
   setTimeout(() => {
     const oldFlies = document.querySelectorAll('.dart-fly');
     if (oldFlies.length > 5) oldFlies[0].remove();
-setTimeout(() => {
-  const oldFlies = document.querySelectorAll('.dart-fly');
-  if (oldFlies.length > 5) oldFlies[0].remove();
 
   // eliminar el dardo que voló después de la animación
   setTimeout(() => {
@@ -359,4 +356,5 @@ db.collection("ranking").orderBy("puntos", "desc").limit(10).onSnapshot(snapshot
 </script>
 </body>
 </html>
+
 
