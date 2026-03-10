@@ -266,10 +266,16 @@ function throwDart(event) {
 
   let points = 0;
   if (distance < 30) points = 100;
+  
   else if (distance < 60) points = 80;
   else if (distance < 90) points = 60;
   else if (distance < 120) points = 40;
   else if (distance < 150) points = 20;
+  
+     if(points === 100){
+  board.classList.add("bullseye");
+  setTimeout(()=>board.classList.remove("bullseye"),600);
+}
   const totalPoints = Math.floor(points * difficultyMultiplier);
   score += totalPoints;
   document.getElementById("score").innerText = "Puntos: " + score;
@@ -374,6 +380,7 @@ db.collection("ranking").orderBy("puntos", "desc").limit(10).onSnapshot(snapshot
 </script>
 </body>
 </html>
+
 
 
 
