@@ -245,10 +245,13 @@ function startGame(){
       clearInterval(interval);
       gameActive = false;
       
-      // Limpieza de dardos al terminar la ronda
-      document.querySelectorAll('.dart').forEach(d => d.remove());
-      
       alert("¡Juego terminado! Tu puntaje fue: " + score);
+      
+      // Limpieza de dardos después del alert (con pequeño delay para evitar bloqueo)
+      setTimeout(() => {
+        document.querySelectorAll('.dart').forEach(d => d.remove());
+      }, 100);
+      
       if (currentPlayerName) {
         saveScore(currentPlayerName, score);
       } else {
